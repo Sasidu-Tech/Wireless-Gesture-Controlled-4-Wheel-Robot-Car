@@ -1,4 +1,4 @@
-cpp```
+
 #include <WiFi.h>
 #include <esp_now.h>
 
@@ -208,4 +208,3 @@ void setup() {
 
 void loop() {
 }
-```
