@@ -1,1 +1,210 @@
 
+#include <WiFi.h>
+#include <esp_now.h>
+
+// =====================================
+// L298N PINS
+// =====================================
+
+#define ENA 15
+#define IN1 2
+#define IN2 4
+
+#define IN3 16
+#define IN4 17
+#define ENB 19
+
+
+// =====================================
+// DATA STRUCTURE
+// =====================================
+
+typedef struct {
+  char command;
+} ControlData;
+
+ControlData data;
+
+
+// =====================================
+// MOTOR FUNCTIONS
+// =====================================
+
+void stopCar() {
+
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+
+  digitalWrite(ENA, LOW);
+  digitalWrite(ENB, LOW);
+}
+
+
+void forward() {
+
+  digitalWrite(ENA, HIGH);
+  digitalWrite(ENB, HIGH);
+
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+
+void backward() {
+
+  digitalWrite(ENA, HIGH);
+  digitalWrite(ENB, HIGH);
+
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+
+void left() {
+
+  digitalWrite(ENA, HIGH);
+  digitalWrite(ENB, HIGH);
+
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+
+void right() {
+
+  digitalWrite(ENA, HIGH);
+  digitalWrite(ENB, HIGH);
+
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+
+// =====================================
+// ESP-NOW RECEIVE
+// ESP32 CORE 3.x
+// =====================================
+
+void OnDataRecv(
+  const esp_now_recv_info_t *info,
+  const uint8_t *incomingData,
+  int len
+) {
+
+  memcpy(&data, incomingData, sizeof(data));
+
+  Serial.print("COMMAND: ");
+  Serial.println(data.command);
+
+
+  if (data.command == 'F') {
+
+    forward();
+    Serial.println("FORWARD");
+  }
+
+  else if (data.command == 'B') {
+
+    backward();
+    Serial.println("BACKWARD");
+  }
+
+  else if (data.command == 'L') {
+
+    left();
+    Serial.println("LEFT");
+  }
+
+  else if (data.command == 'R') {
+
+    right();
+    Serial.println("RIGHT");
+  }
+
+  else {
+
+    stopCar();
+    Serial.println("STOP");
+  }
+}
+
+
+// =====================================
+// SETUP
+// =====================================
+
+void setup() {
+
+  Serial.begin(115200);
+
+  delay(1000);
+
+
+  // Motor pins
+  pinMode(ENA, OUTPUT);
+
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+
+  pinMode(ENB, OUTPUT);
+
+
+  // Start stopped
+  stopCar();
+
+
+  // WiFi Station
+  WiFi.mode(WIFI_STA);
+
+  delay(500);
+
+
+  Serial.println();
+  Serial.println("==============================");
+  Serial.println("       CAR RECEIVER");
+  Serial.println("==============================");
+
+  Serial.print("CAR MAC: ");
+  Serial.println(WiFi.STA.macAddress());
+
+
+  // ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+
+    Serial.println("ESP-NOW INIT FAILED!");
+
+    while (true) {
+      delay(1000);
+    }
+  }
+
+
+  esp_now_register_recv_cb(OnDataRecv);
+
+
+  Serial.println("ESP-NOW READY");
+  Serial.println("CAR READY");
+  Serial.println("==============================");
+}
+
+
+void loop() {
+}
