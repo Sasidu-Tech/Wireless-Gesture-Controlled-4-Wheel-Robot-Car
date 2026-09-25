@@ -1,4 +1,11 @@
-🚗 Wireless Gesture Controlled 4-Wheel Robot Car
+##🚗 Wireless Gesture Controlled 4-Wheel Robot Car
+
+
+## 🎥 Demo
+
+[![Watch Demo on LinkedIn](https://img.shields.io/badge/Watch%20Demo-LinkedIn-blue?logo=linkedin)](https://lnkd.in/p/g4rYE4_v)
+
+![ESP32 Wi-Fi Scanner](images/car%20%26Hand%20Controller-02.jpg)
 
 A wireless 4-wheel robotic car controlled using hand gestures. The hand controller uses an ESP32 + MPU6050 to detect hand tilting, and commands are transmitted wirelessly to another ESP32 using ESP-NOW. The car ESP32 controls four DC motors through an L298N motor driver.
 
